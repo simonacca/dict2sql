@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "dict2sql"
+version = "1.0.0"
+description = ""
+authors = ["Simon Accascina <simon@accascina.me>"]
+homepage = "https://github.com/simonacca/dict2sql"
+repository = "https://github.com/simonacca/dict2sql"
+readme = "README.md"
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+SQLAlchemy = "^1.4.13"
+toolz = "^0.11.1"
+
+[tool.poetry.dev-dependencies]
+black = "^21.5b0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
