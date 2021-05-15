@@ -86,18 +86,23 @@ ExpressionLiteralSimple = str
 def isExpressionLiteralSimple(obj: Any):
     return isinstance(obj, ExpressionLiteralSimple)
 
+
 class ExpressionLiteralQuoted(TypedDict):
     Type: Literal["Quoted"]
     Expression: ExpressionLiteralSimple
 
+
 def isExpressionLiteralQuoted(obj: Any) -> bool:
     # pyright: reportUnknownVariableType=false
-    return isinstance(obj, dict) and ('Type' in obj) and (obj['Type'] == 'Quoted')
+    return isinstance(obj, dict) and ("Type" in obj) and (obj["Type"] == "Quoted")
+
 
 ExpressionLiteral = Union[ExpressionLiteralSimple, ExpressionLiteralQuoted]
 
+
 def isExpressionLiteral(obj: Any) -> bool:
     return isExpressionLiteralSimple(obj) or isExpressionLiteralQuoted(obj)
+
 
 ExpressionSxDxOp = Literal["=", "<", ">", "<=", ">="]
 
