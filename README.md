@@ -75,6 +75,8 @@ Finally, it should be noted that this library strictly tries to do *one* job wel
 ## Implementation details
 This project at the moment targets ANSI SQL, with the ambition of soon targeting all major SQL dialects.
 
+Tests are based on the [Chinhook Database](https://github.com/lerocha/chinook-database).
+
 ## Contributing
 
 Contributions and forks are welcome!
