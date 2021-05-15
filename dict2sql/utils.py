@@ -1,10 +1,11 @@
-from typing import Iterable, TypeVar, Union
 import itertools
+import pprint
+from typing import Iterable, TypeVar, Union
 
 # pyright: reportMissingTypeStubs=false
 import toolz
-from .types import Intermediate, SqlText, ColName, TableName
-import pprint
+
+from .types import ColName, Intermediate, SqlText, TableName
 
 
 class Utils:
@@ -27,6 +28,9 @@ class Utils:
     def format_tablename(self, raw: TableName) -> ColName:
         return f"`{raw}`"
 
+    def format_quotes(self, raw: SqlText) -> SqlText:
+        return f'"{raw}"'
+
     def format_subquery(self, raw: Iterable[Intermediate]) -> Intermediate:
         return itertools.chain(["("], raw, [")"])
 
@@ -42,7 +46,6 @@ class Utils:
                 # pyright: reportUnnecessaryIsInstance=false
 
             elif isinstance(raw, Iterable):
-                # pyright: reportUnknownArgumentType=false
                 return " ".join([inner(x) for x in raw if x])
 
             else:
@@ -58,7 +61,6 @@ class Utils:
             if isinstance(raw, str):
                 return raw
             elif isinstance(raw, Iterable):
-                # pyright: reportUnknownVariableType=false
                 return list([inner(x) for x in raw if x])
             else:
                 print(raw)

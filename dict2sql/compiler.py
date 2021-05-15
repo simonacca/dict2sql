@@ -14,30 +14,39 @@ The classes here are organized in a hierarchy as follows (example):
       - _FromClauseSubquery
 """
 import abc
+from typing import Any, List, Optional, Type
 
-from typing import Any, Callable, List, Optional, Type
-from dict2sql.utils import Utils, interpose
 import dict2sql.types as t
+from dict2sql.utils import Utils, interpose
 
 
-class _BaseAlternative(abc.ABC):
-    """ """
+class _Rule(abc.ABC):
+    @classmethod
+    @abc.abstractclassmethod
+    def to_sql(cls, u: Utils, clause: Any) -> t.Intermediate:
+        return ""
 
+
+class _BaseAlternativeChild(_Rule, abc.ABC):
     @staticmethod
     @abc.abstractstaticmethod
     def match(clause: Any) -> bool:
         return False
 
+
+class _BaseAlternativeChildAlwaysMatch(_BaseAlternativeChild):
     @staticmethod
-    @abc.abstractstaticmethod
-    def to_sql(u: Utils, clause: Any) -> t.Intermediate:
-        return ""
+    def match(clause: Any) -> bool:
+        return True
 
 
-class _BaseClause(abc.ABC):
-    alternatives: Optional[List[Type[_BaseAlternative]]]
-    wrapper: Callable[[Utils, Any], t.Intermediate]
-    key: Optional[str]
+class _BaseAlternativeParent:
+    alternatives: Optional[List[Type[_BaseAlternativeChild]]]
+
+    @staticmethod
+    def wrapper(u: Utils, clause: t.Intermediate) -> t.Intermediate:
+        # Identity wrapper (default)
+        return clause
 
     @classmethod
     def test_alternatives(cls, u: Utils, clause: Any) -> t.Intermediate:
@@ -50,43 +59,45 @@ class _BaseClause(abc.ABC):
                     return [alternative.__name__, alternative.to_sql(u, clause)]
                 return alternative.to_sql(u, clause)
         else:
-            raise ValueError("Could not find alternative")
+            raise ValueError(f"Could not find alternative")
 
     @classmethod
-    def to_sql_bare(cls, u: Utils, clause: Any) -> t.Intermediate:
+    def to_sql(cls, u: Utils, clause: Any) -> t.Intermediate:
         return cls.wrapper(u, cls.test_alternatives(u, clause))
 
-    @classmethod
-    def to_sql_if_key(cls, u: Utils, clause: Any) -> t.Intermediate:
-        if not isinstance(clause, dict) or not cls.key or cls.key not in clause:
-            return f""
-        return cls.to_sql_bare(u, clause[cls.key])
 
-    # Make to_sql_if_key the default
-    to_sql = to_sql_if_key
+class _BaseClauseIfKey(_BaseAlternativeParent, abc.ABC):
+    key: Optional[str]
+
+    @classmethod
+    def to_sql(cls, u: Utils, clause: Any) -> t.Intermediate:
+        if not isinstance(clause, dict) or not cls.key or cls.key not in clause:
+            return []
+        return super(_BaseClauseIfKey, cls).to_sql(u, clause[cls.key])
 
 
 ################################################################################
 # Select
 
 
-class _SelectClauseList(_BaseAlternative):
+class _SelectClauseList(_BaseAlternativeChild):
     match = t.isColNameList
 
-    @staticmethod
-    def to_sql(u: Utils, clause: t.ColNameList) -> t.Intermediate:
-        return interpose(",", [u.format_colname(u.sanitizer(x)) for x in clause])
+    @classmethod
+    def to_sql(cls, u: Utils, clause: t.ColNameList) -> t.Intermediate:
+        # No Col name
+        return interpose(",", [u.sanitizer(x) for x in clause])
 
 
-class _SelectClauseSingle(_BaseAlternative):
+class _SelectClauseSingle(_BaseAlternativeChild):
     match = t.isColName
 
-    @staticmethod
-    def to_sql(u: Utils, clause: t.ColName) -> t.Intermediate:
+    @classmethod
+    def to_sql(cls, u: Utils, clause: t.ColName) -> t.Intermediate:
         return _SelectClauseList.to_sql(u, [clause])
 
 
-class _SelectClause(_BaseClause):
+class _SelectClause(_BaseClauseIfKey):
     alternatives = [_SelectClauseSingle, _SelectClauseList]
     key = "Select"
 
@@ -99,30 +110,30 @@ class _SelectClause(_BaseClause):
 # From
 
 
-class _FromClauseSingle(_BaseAlternative):
+class _FromClauseSingle(_BaseAlternativeChild):
     match = t.isTableName
 
-    @staticmethod
-    def to_sql(u: Utils, clause: t.TableName) -> t.Intermediate:
+    @classmethod
+    def to_sql(cls, u: Utils, clause: t.TableName) -> t.Intermediate:
         return u.format_tablename(u.sanitizer(clause))
 
 
-class _FromClauseList(_BaseAlternative):
+class _FromClauseList(_BaseAlternativeChild):
     match = t.isTableNameList
 
-    @staticmethod
-    def to_sql(u: Utils, clause: List[t.FromClauseSub]) -> t.Intermediate:
+    @classmethod
+    def to_sql(cls, u: Utils, clause: List[t.FromClauseSub]) -> t.Intermediate:
         return interpose(
             ",",
             [_FromClause.test_alternatives(u, x) for x in clause],
         )
 
 
-class _FromClauseSubQuery(_BaseAlternative):
+class _FromClauseSubQuery(_BaseAlternativeChild):
     match = t.isSubQuery
 
-    @staticmethod
-    def to_sql(u: Utils, clause: t.SubQuery) -> t.Intermediate:
+    @classmethod
+    def to_sql(cls, u: Utils, clause: t.SubQuery) -> t.Intermediate:
         return [
             u.format_subquery(SelectStatement.to_sql(u, clause["Query"])),
             "AS",
@@ -130,11 +141,11 @@ class _FromClauseSubQuery(_BaseAlternative):
         ]
 
 
-class _FromClauseJoin(_BaseAlternative):
+class _FromClauseJoin(_BaseAlternativeChild):
     match = t.isJoin
 
-    @staticmethod
-    def to_sql(u: Utils, clause: t.JoinClause) -> t.Intermediate:
+    @classmethod
+    def to_sql(cls, u: Utils, clause: t.JoinClause) -> t.Intermediate:
         return u.format_subquery(
             [
                 _FromClause.test_alternatives(u, clause["Sx"]),
@@ -146,7 +157,7 @@ class _FromClauseJoin(_BaseAlternative):
         )
 
 
-class _FromClause(_BaseClause):
+class _FromClause(_BaseClauseIfKey):
     alternatives = [
         _FromClauseSingle,
         _FromClauseList,
@@ -156,7 +167,7 @@ class _FromClause(_BaseClause):
     key = "From"
 
     @staticmethod
-    def wrapper(fc: Utils, clause: t.Intermediate):
+    def wrapper(u: Utils, clause: t.Intermediate):
         return ["FROM", clause]
 
 
@@ -164,19 +175,35 @@ class _FromClause(_BaseClause):
 # Where
 
 
-class _ExpressionLiteral(_BaseAlternative):
-    match = t.isExpressionLiteral
+class _ExpressionLiteralSimple(_BaseAlternativeChild):
+    match = t.isExpressionLiteralSimple
 
-    @staticmethod
-    def to_sql(u: Utils, clause: t.ExpressionLiteral) -> t.Intermediate:
+    @classmethod
+    def to_sql(cls, u: Utils, clause: t.ExpressionLiteralSimple) -> t.Intermediate:
         return u.sanitizer(clause)
 
 
-class _ExpressionBoolean(_BaseAlternative):
+class _ExpressionLiteralQuoted(_BaseAlternativeChild):
+    match = t.isExpressionLiteralQuoted
+
+    @classmethod
+    def to_sql(cls, u: Utils, clause: t.ExpressionLiteralQuoted) -> t.Intermediate:
+        return u.format_quotes(u.sanitizer(clause["Expression"]))
+
+
+class _ExpressionLiteral(_BaseAlternativeParent, _BaseAlternativeChildAlwaysMatch):
+    alternatives = [_ExpressionLiteralQuoted, _ExpressionLiteralSimple]
+
+    @classmethod
+    def to_sql(cls, u: Utils, clause: Any) -> t.Intermediate:
+        return cls.wrapper(u, cls.test_alternatives(u, clause))
+
+
+class _ExpressionBoolean(_BaseAlternativeChild):
     match = t.isExpressionBoolean
 
-    @staticmethod
-    def to_sql(u: Utils, clause: t.ExpressionBoolean) -> t.Intermediate:
+    @classmethod
+    def to_sql(cls, u: Utils, clause: t.ExpressionBoolean) -> t.Intermediate:
         return u.format_subexpr(
             interpose(
                 u.sanitizer(clause["Op"]),
@@ -185,11 +212,11 @@ class _ExpressionBoolean(_BaseAlternative):
         )
 
 
-class _ExpressionSxDx(_BaseAlternative):
+class _ExpressionSxDx(_BaseAlternativeChild):
     match = t.isExpressionSxDx
 
-    @staticmethod
-    def to_sql(u: Utils, clause: t.ExpressionSxDx) -> t.Intermediate:
+    @classmethod
+    def to_sql(cls, u: Utils, clause: t.ExpressionSxDx) -> t.Intermediate:
         return u.format_subexpr(
             [
                 _WhereClause.test_alternatives(u, clause["Sx"]),
@@ -199,8 +226,11 @@ class _ExpressionSxDx(_BaseAlternative):
         )
 
 
-class _WhereClause(_BaseClause):
-    alternatives = [_ExpressionLiteral, _ExpressionBoolean, _ExpressionSxDx]
+class _WhereClause(_BaseClauseIfKey):
+    # TODO: Warning in this case the order matters in the list of alternatives/
+    # (_ExpressionLiteral has to be last because it always matches)
+    # is that ok? if yes, how to make this fact more explicit?
+    alternatives = [_ExpressionBoolean, _ExpressionSxDx, _ExpressionLiteral]
     key = "Where"
 
     @staticmethod
@@ -212,15 +242,15 @@ class _WhereClause(_BaseClause):
 # Limit
 
 
-class _LimitClauseSingle(_BaseAlternative):
+class _LimitClauseSingle(_BaseAlternativeChild):
     match = t.isLimitClause
 
-    @staticmethod
-    def to_sql(u: Utils, clause: t.LimitClause) -> t.Intermediate:
+    @classmethod
+    def to_sql(cls, u: Utils, clause: t.LimitClause) -> t.Intermediate:
         return u.sanitizer(str(clause))
 
 
-class _LimitClause(_BaseClause):
+class _LimitClause(_BaseClauseIfKey):
     alternatives = [_LimitClauseSingle]
     key = "Limit"
 
@@ -233,12 +263,11 @@ class _LimitClause(_BaseClause):
 # Select statement
 
 
-# TODO: Doublecheck double inheritance!
-class SelectStatement(_BaseAlternative):
+class SelectStatement(_BaseAlternativeChild):
     match = t.isSelectStatement
 
-    @staticmethod
-    def to_sql(u: Utils, clause: t.SelectStatement) -> t.Intermediate:
+    @classmethod
+    def to_sql(cls, u: Utils, clause: t.SelectStatement) -> t.Intermediate:
         return [
             _SelectClause.to_sql(u, clause),
             _FromClause.to_sql(u, clause),
@@ -251,17 +280,9 @@ class SelectStatement(_BaseAlternative):
 # Statement
 
 
-class Statement(_BaseClause):
+class Statement(_BaseAlternativeParent):
     alternatives = [SelectStatement]
 
-    @staticmethod
-    def wrapper(u: Utils, clause: t.Intermediate):
-        return clause
-
     @classmethod
-    def to_sql(cls, u: Utils, clause: t.Statement) -> t.Intermediate:
-        return cls.to_sql_bare(u, clause)
-
-    @classmethod
-    def to_sql_root(cls, u: Utils, clause: t.Statement) -> t.Intermediate:
+    def to_sql_root(cls, u: Utils, clause: t.Statement):
         return u.format_query(cls.to_sql(u, clause))

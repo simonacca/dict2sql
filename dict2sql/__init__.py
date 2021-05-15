@@ -1,7 +1,8 @@
 from functools import partial
-from dict2sql.utils import Utils
-from dict2sql.compiler import Statement
 from typing import Optional
+
+from dict2sql.compiler import Statement
+from dict2sql.utils import Utils
 
 
 class dict2sql:

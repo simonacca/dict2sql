@@ -5,8 +5,7 @@ They are part of the public interface for this module.
 Types that need it, have a corresponding isType function, which is used
 to disambiguate types at runtime.
 """
-from typing import Any, Iterable, List, Literal, TypedDict, Union
-from typing import Callable
+from typing import Any, Callable, Iterable, List, Literal, TypedDict, Union
 
 # Basic types
 
@@ -81,12 +80,24 @@ FromClause = Union[FromClauseSub, List[FromClauseSub]]
 
 # Where Clause
 
-ExpressionLiteral = str
+ExpressionLiteralSimple = str
 
 
-def isExpressionLiteral(obj: Any):
-    return isinstance(obj, ExpressionLiteral)
+def isExpressionLiteralSimple(obj: Any):
+    return isinstance(obj, ExpressionLiteralSimple)
 
+class ExpressionLiteralQuoted(TypedDict):
+    Type: Literal["Quoted"]
+    Expression: ExpressionLiteralSimple
+
+def isExpressionLiteralQuoted(obj: Any) -> bool:
+    # pyright: reportUnknownVariableType=false
+    return isinstance(obj, dict) and ('Type' in obj) and (obj['Type'] == 'Quoted')
+
+ExpressionLiteral = Union[ExpressionLiteralSimple, ExpressionLiteralQuoted]
+
+def isExpressionLiteral(obj: Any) -> bool:
+    return isExpressionLiteralSimple(obj) or isExpressionLiteralQuoted(obj)
 
 ExpressionSxDxOp = Literal["=", "<", ">", "<=", ">="]
 
