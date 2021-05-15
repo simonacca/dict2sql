@@ -9,3 +9,12 @@ build:
 
 clean:
 	rm -rf dist
+
+lint:
+	black --check dict2sql
+
+format:
+	black dict2sql
+
+typecheck:
+	mypy dict2sql

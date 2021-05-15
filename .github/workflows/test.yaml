@@ -21,6 +21,9 @@ jobs:
           path: ~/.cache/pypoetry/virtualenvs
           key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
       - run: poetry install
+      - name: Lint
+        run: |
+          make lint
       - name: Unit tests
         run: |
           make test
