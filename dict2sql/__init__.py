@@ -1,7 +1,7 @@
 from functools import partial
 from typing import Optional
 
-from dict2sql.compiler import Statement
+from dict2sql.dialects.ansi.statement import Statement
 from dict2sql.utils import Utils
 
 

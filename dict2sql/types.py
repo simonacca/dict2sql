@@ -166,9 +166,10 @@ class SubQuery(TypedDict):
 def isSubQuery(obj: Any):
     return isinstance(obj, dict) and "Alias" in obj
 
+
 # Insert statement
 
-ValueMap = Dict[ColName,Any]
+ValueMap = Dict[ColName, Any]
 
 # TODO: find better name
 class ValueClause(TypedDict):
@@ -179,17 +180,22 @@ class ValueClause(TypedDict):
 class InsertStatement(TypedDict):
     Insert: ValueClause
 
+
 def isInsertStatement(obj: Any):
-    return isinstance(obj, dict) and 'Insert' in obj
+    return isinstance(obj, dict) and "Insert" in obj
+
 
 # Update Statement
+
 
 class UpdateStatement(TypedDict, total=False):
     Update: ValueClause
     Where: WhereClause
 
+
 def isUpdateStatement(obj: Any):
-    return isinstance(obj, dict) and 'Update' in obj
+    return isinstance(obj, dict) and "Update" in obj
+
 
 # Statement
 
