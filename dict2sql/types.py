@@ -170,19 +170,27 @@ def isSubQuery(obj: Any):
 
 ValueMap = Dict[ColName,Any]
 
-class InsertClause(TypedDict):
+# TODO: find better name
+class ValueClause(TypedDict):
     Table: TableName
     Data: ValueMap
 
 
 class InsertStatement(TypedDict):
-    Insert: InsertClause
+    Insert: ValueClause
 
 def isInsertStatement(obj: Any):
     return isinstance(obj, dict) and 'Insert' in obj
 
+# Update Statement
 
+class UpdateStatement(TypedDict, total=False):
+    Update: ValueClause
+    Where: WhereClause
+
+def isUpdateStatement(obj: Any):
+    return isinstance(obj, dict) and 'Update' in obj
 
 # Statement
 
-Statement = Union[SelectStatement, InsertStatement]
+Statement = Union[SelectStatement, InsertStatement, UpdateStatement]

@@ -278,7 +278,7 @@ class SelectStatement(_BaseAlternativeChild):
 
 ################################################################################
 # Insert statement
-class _ValueMapClause:
+class _InsertClauseMap:
     @classmethod
     def to_sql(cls, u: Utils, clause: t.ValueMap) -> t.Intermediate:
 
@@ -286,13 +286,9 @@ class _ValueMapClause:
         items = list(clause.items())
 
         return [
-            "(",
-            *[u.format_colname(i[0]) for i in items],
-            ")",
+            u.format_subquery([u.format_colname(i[0]) for i in items]),
             "VALUES",
-            "(",
-            *[u.format_quotes(i[1]) for i in items],
-            ")",
+            u.format_subquery([u.format_quotes(i[1]) for i in items]),
         ]
 
 
@@ -302,7 +298,7 @@ class _InsertClause:
         return [
             "INSERT INTO",
             u.sanitizer(clause["Insert"]["Table"]),
-            _ValueMapClause.to_sql(u, clause["Insert"]["Data"]),
+            _InsertClauseMap.to_sql(u, clause["Insert"]["Data"]),
         ]
 
 
@@ -318,13 +314,51 @@ class InsertStatement(_BaseAlternativeChild):
 
 ################################################################################
 # Update statement
+class _UpdateClauseMap:
+    @classmethod
+    def to_sql(cls, u: Utils, clause: t.ValueMap) -> t.Intermediate:
+
+        # impart a permanent sorting onto the items
+        items = list(clause.items())
+
+        return [
+            [
+                u.format_colname(i[0]),
+                "=",
+                u.format_quotes(i[1]),
+            ]
+            for i in items
+        ]
+
+
+class _UpdateClause:
+    @staticmethod
+    def to_sql(u: Utils, clause: t.UpdateStatement) -> t.Intermediate:
+        return [
+            "UPDATE",
+            u.sanitizer(clause["Update"]["Table"]),
+            "SET",
+            _UpdateClauseMap.to_sql(u, clause["Update"]["Data"]),
+        ]
+
+
+class UpdateStatement(_BaseAlternativeChild):
+    match = t.isUpdateStatement
+
+    @classmethod
+    def to_sql(cls, u: Utils, clause: t.UpdateStatement) -> t.Intermediate:
+        return [
+            _UpdateClause.to_sql(u, clause),
+            _WhereClause.to_sql(u, clause),
+        ]
+
 
 ################################################################################
 # Statement
 
 
 class Statement(_BaseAlternativeParent):
-    alternatives = [SelectStatement, InsertStatement]
+    alternatives = [SelectStatement, InsertStatement, UpdateStatement]
 
     @classmethod
     def to_sql_root(cls, u: Utils, clause: t.Statement):

@@ -4,7 +4,13 @@ from typing import Any, Optional
 
 import dict2sql
 from dict2sql.test_fixtures.utils import open_sqlite_in_memory
-from dict2sql.types import InsertStatement, SelectStatement, Statement
+from dict2sql.types import (
+    InsertStatement,
+    SelectStatement,
+    Statement,
+    UpdateStatement,
+    WhereClause,
+)
 
 
 class _BaseTestQueryResult(unittest.TestCase):
@@ -17,7 +23,6 @@ class _BaseTestQueryResult(unittest.TestCase):
         cur = db.cursor()
         t = dict2sql.dict2sql()
         sql = t.to_sql(query)
-        print(sql)
         return list(cur.execute(sql))
 
     def _run_query_and_check_result(
@@ -126,3 +131,53 @@ class TestInsert(_BaseTestQueryResult):
 
         expectedRes = [(Name,)]
         self._run_query_and_check_result(selectQuery, expectedRes, db)
+
+
+class TestUpdate(_BaseTestQueryResult):
+    def test_update(self):
+        db = open_sqlite_in_memory()
+
+        Name = "Weird Al Yancovic"
+        Name2 = "Weird Al Yancovic ABC"
+
+        whereSubQuery: WhereClause = {
+            "Op": "=",
+            "Sx": "Name",
+            "Dx": {"Type": "Quoted", "Expression": Name},
+        }
+
+        insertQuery: InsertStatement = {
+            "Insert": {"Table": "Artist", "Data": {"Name": Name}}
+        }
+
+        selectQuery: SelectStatement = {
+            "Select": "Name",
+            "From": "Artist",
+            "Where": whereSubQuery,
+        }
+
+        self._run_query_and_check_result(selectQuery, [], db)
+
+        self._run_query(insertQuery, db)
+
+        expectedRes = [(Name,)]
+        self._run_query_and_check_result(selectQuery, expectedRes, db)
+
+        updateQuery: UpdateStatement = {
+            "Update": {"Table": "Artist", "Data": {"Name": Name2}},
+            "Where": whereSubQuery,
+        }
+        self._run_query(updateQuery, db)
+
+        selectQuery2: SelectStatement = {
+            "Select": "Name",
+            "From": "Artist",
+            "Where": {
+                "Op": "=",
+                "Sx": "Name",
+                "Dx": {"Type": "Quoted", "Expression": Name2},
+            },
+        }
+
+        expectedRes2 = [(Name2,)]
+        self._run_query_and_check_result(selectQuery2, expectedRes2, db)
