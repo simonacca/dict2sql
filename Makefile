@@ -16,10 +16,10 @@ clean:
 	rm -rf dist
 
 lint:
-	black --check dict2sql
+	poetry run black --check dict2sql
 
 format:
-	black dict2sql
+	poetry run black dict2sql
 
 typecheck:
 	poetry run pyright typecheck dict2sql
