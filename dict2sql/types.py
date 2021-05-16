@@ -173,5 +173,3 @@ class InsertStatement(TypedDict, total=False):
 
 
 Statement = Union[SelectStatement, InsertStatement]
-
-# Part = Union[]
