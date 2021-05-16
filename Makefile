@@ -1,4 +1,4 @@
-.PHONY: unit_test clean
+.PHONY: test coverage_report build clean lint format typecheck
 
 
 test:
@@ -22,4 +22,4 @@ format:
 	black dict2sql
 
 typecheck:
-	mypy dict2sql
+	poetry run pyright typecheck dict2sql

@@ -11,6 +11,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: Setup node.js (for pyright)
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12"
+
+      - name: Install pyright
+        run: npm install -g pyright
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v1
         with:
@@ -21,6 +28,8 @@ jobs:
           path: ~/.cache/pypoetry/virtualenvs
           key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
       - run: poetry install
-      - run: poetry run make lint
-      - run: poetry run make test
-      - run: poetry run make coverage_report
+      - run: make test
+      - run: make coverage_report
+      - run: make lint
+      - run: make typecheck
+
