@@ -25,7 +25,7 @@ class _UpdateClauseMap:
 class _UpdateClause:
     @staticmethod
     def to_sql(u: Utils, clause: t.UpdateStatement) -> t.Intermediate:
-        if 'Update' not in clause:
+        if "Update" not in clause:
             raise ValueError('"Update" field missing')
 
         return [
