@@ -1,20 +1,32 @@
+from sqlite3.dbapi2 import Connection
 import unittest
-from typing import Any
+from typing import Any, Optional
 
 import dict2sql
 from dict2sql.test_fixtures.utils import open_sqlite_in_memory
-from dict2sql.types import SelectStatement, Statement
+from dict2sql.types import InsertStatement, SelectStatement, Statement
 
 
 class _BaseTestQueryResult(unittest.TestCase):
-    def _run_query(self, query: Statement):
-        db = open_sqlite_in_memory()
+    def _run_query(
+        self,
+        query: Statement,
+        provided_db: Optional[Connection] = None,
+    ):
+        db = provided_db or open_sqlite_in_memory()
         cur = db.cursor()
         t = dict2sql.dict2sql()
-        return list(cur.execute(t.to_sql(query)))
+        sql = t.to_sql(query)
+        print(sql)
+        return list(cur.execute(sql))
 
-    def _run_query_and_check_result(self, query: Statement, expectedResult: Any):
-        res = self._run_query(query)
+    def _run_query_and_check_result(
+        self,
+        query: Statement,
+        expectedResult: Any,
+        provided_db: Optional[Connection] = None,
+    ):
+        res = self._run_query(query, provided_db)
         self.assertEqual(res, expectedResult, "Wrong result")
 
 
@@ -87,3 +99,30 @@ class TestSelect(_BaseTestQueryResult):
         ]
 
         self._run_query_and_check_result(query, expectedRes)
+
+
+class TestInsert(_BaseTestQueryResult):
+    def test_insert(self):
+        db = open_sqlite_in_memory()
+
+        Name = "Weird Al Yancovic"
+        insertQuery: InsertStatement = {
+            "Insert": {"Table": "Artist", "Data": {"Name": Name}}
+        }
+
+        selectQuery: SelectStatement = {
+            "Select": "Name",
+            "From": "Artist",
+            "Where": {
+                "Op": "=",
+                "Sx": "Name",
+                "Dx": {"Type": "Quoted", "Expression": Name},
+            },
+        }
+
+        self._run_query_and_check_result(selectQuery, [], db)
+
+        self._run_query(insertQuery, db)
+
+        expectedRes = [(Name,)]
+        self._run_query_and_check_result(selectQuery, expectedRes, db)

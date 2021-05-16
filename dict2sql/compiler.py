@@ -66,14 +66,14 @@ class _BaseAlternativeParent:
         return cls.wrapper(u, cls.test_alternatives(u, clause))
 
 
-class _BaseClauseIfKey(_BaseAlternativeParent, abc.ABC):
+class _BaseAlternativeParentIfKey(_BaseAlternativeParent, abc.ABC):
     key: Optional[str]
 
     @classmethod
     def to_sql(cls, u: Utils, clause: Any) -> t.Intermediate:
         if not isinstance(clause, dict) or not cls.key or cls.key not in clause:
             return []
-        return super(_BaseClauseIfKey, cls).to_sql(u, clause[cls.key])
+        return super(_BaseAlternativeParentIfKey, cls).to_sql(u, clause[cls.key])
 
 
 ################################################################################
@@ -97,7 +97,7 @@ class _SelectClauseSingle(_BaseAlternativeChild):
         return _SelectClauseList.to_sql(u, [clause])
 
 
-class _SelectClause(_BaseClauseIfKey):
+class _SelectClause(_BaseAlternativeParentIfKey):
     alternatives = [_SelectClauseSingle, _SelectClauseList]
     key = "Select"
 
@@ -157,7 +157,7 @@ class _FromClauseJoin(_BaseAlternativeChild):
         )
 
 
-class _FromClause(_BaseClauseIfKey):
+class _FromClause(_BaseAlternativeParentIfKey):
     alternatives = [
         _FromClauseSingle,
         _FromClauseList,
@@ -226,7 +226,7 @@ class _ExpressionSxDx(_BaseAlternativeChild):
         )
 
 
-class _WhereClause(_BaseClauseIfKey):
+class _WhereClause(_BaseAlternativeParentIfKey):
     # TODO: Warning in this case the order matters in the list of alternatives/
     # (_ExpressionLiteral has to be last because it always matches)
     # is that ok? if yes, how to make this fact more explicit?
@@ -250,7 +250,7 @@ class _LimitClauseSingle(_BaseAlternativeChild):
         return u.sanitizer(str(clause))
 
 
-class _LimitClause(_BaseClauseIfKey):
+class _LimitClause(_BaseAlternativeParentIfKey):
     alternatives = [_LimitClauseSingle]
     key = "Limit"
 
@@ -277,11 +277,54 @@ class SelectStatement(_BaseAlternativeChild):
 
 
 ################################################################################
+# Insert statement
+class _ValueMapClause:
+    @classmethod
+    def to_sql(cls, u: Utils, clause: t.ValueMap) -> t.Intermediate:
+
+        # impart a permanent sorting onto the items
+        items = list(clause.items())
+
+        return [
+            "(",
+            *[u.format_colname(i[0]) for i in items],
+            ")",
+            "VALUES",
+            "(",
+            *[u.format_quotes(i[1]) for i in items],
+            ")",
+        ]
+
+
+class _InsertClause:
+    @staticmethod
+    def to_sql(u: Utils, clause: t.InsertStatement) -> t.Intermediate:
+        return [
+            "INSERT INTO",
+            u.sanitizer(clause["Insert"]["Table"]),
+            _ValueMapClause.to_sql(u, clause["Insert"]["Data"]),
+        ]
+
+
+class InsertStatement(_BaseAlternativeChild):
+    match = t.isInsertStatement
+
+    @classmethod
+    def to_sql(cls, u: Utils, clause: t.InsertStatement) -> t.Intermediate:
+        return [
+            _InsertClause.to_sql(u, clause),
+        ]
+
+
+################################################################################
+# Update statement
+
+################################################################################
 # Statement
 
 
 class Statement(_BaseAlternativeParent):
-    alternatives = [SelectStatement]
+    alternatives = [SelectStatement, InsertStatement]
 
     @classmethod
     def to_sql_root(cls, u: Utils, clause: t.Statement):

@@ -5,7 +5,7 @@ They are part of the public interface for this module.
 Types that need it, have a corresponding isType function, which is used
 to disambiguate types at runtime.
 """
-from typing import Any, Callable, Iterable, List, Literal, TypedDict, Union
+from typing import Any, Callable, Dict, Iterable, List, Literal, TypedDict, Union
 
 # Basic types
 
@@ -166,10 +166,23 @@ class SubQuery(TypedDict):
 def isSubQuery(obj: Any):
     return isinstance(obj, dict) and "Alias" in obj
 
+# Insert statement
 
-class InsertStatement(TypedDict, total=False):
-    Insert: str
-    Where: Expression
+ValueMap = Dict[ColName,Any]
 
+class InsertClause(TypedDict):
+    Table: TableName
+    Data: ValueMap
+
+
+class InsertStatement(TypedDict):
+    Insert: InsertClause
+
+def isInsertStatement(obj: Any):
+    return isinstance(obj, dict) and 'Insert' in obj
+
+
+
+# Statement
 
 Statement = Union[SelectStatement, InsertStatement]
