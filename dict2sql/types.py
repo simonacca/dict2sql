@@ -197,6 +197,22 @@ def isUpdateStatement(obj: Any):
     return isinstance(obj, dict) and "Update" in obj
 
 
+# Delete Statement
+
+
+class DeleteClause(TypedDict):
+    Table: TableName
+
+
+class DeleteStatement(TypedDict, total=False):
+    Delete: DeleteClause
+    Where: WhereClause
+
+
+def isDeleteStatement(obj: Any):
+    return isinstance(obj, dict) and "Delete" in obj
+
+
 # Statement
 
-Statement = Union[SelectStatement, InsertStatement, UpdateStatement]
+Statement = Union[SelectStatement, InsertStatement, UpdateStatement, DeleteStatement]

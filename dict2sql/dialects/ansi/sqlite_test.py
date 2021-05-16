@@ -5,6 +5,7 @@ from typing import Any, Optional
 import dict2sql
 from dict2sql.test_fixtures.utils import open_sqlite_in_memory
 from dict2sql.types import (
+    DeleteStatement,
     InsertStatement,
     SelectStatement,
     Statement,
@@ -177,3 +178,37 @@ class TestUpdate(_BaseTestQueryResult):
 
         expectedRes2 = [(Name2,)]
         self._run_query_and_check_result(selectQuery2, expectedRes2, db)
+
+
+class TestDelete(_BaseTestQueryResult):
+    def test_delete(self):
+        db = open_sqlite_in_memory()
+
+        Name = "Weird Al Yancovic"
+
+        whereSubQuery: WhereClause = {
+            "Op": "=",
+            "Sx": "Name",
+            "Dx": {"Type": "Quoted", "Expression": Name},
+        }
+
+        insertQuery: InsertStatement = {"Insert": {"Table": "Artist", "Data": {"Name": Name}}}
+
+        selectQuery: SelectStatement = {
+            "Select": "Name",
+            "From": "Artist",
+            "Where": whereSubQuery,
+        }
+
+        deleteQuery: DeleteStatement = {"Delete": {"Table": "Artist"}, "Where": whereSubQuery}
+
+        self._run_query_and_check_result(selectQuery, [], db)
+
+        self._run_query(insertQuery, db)
+
+        expectedRes = [(Name,)]
+        self._run_query_and_check_result(selectQuery, expectedRes, db)
+
+        self._run_query(deleteQuery, db)
+
+        self._run_query_and_check_result(selectQuery, [], db)
