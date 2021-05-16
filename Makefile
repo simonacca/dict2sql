@@ -20,10 +20,8 @@ lint:
 	poetry run isort --check dict2sql
 
 
-sort-imports:
+format:
 	poetry run isort dict2sql
-
-format: sort-imports
 	poetry run black dict2sql
 
 typecheck:

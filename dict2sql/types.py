@@ -5,7 +5,8 @@ They are part of the public interface for this module.
 Types that need it, have a corresponding isType function, which is used
 to disambiguate types at runtime.
 """
-from typing import Any, Callable, Dict, Iterable, List, Literal, TypedDict, Union
+from typing import (Any, Callable, Dict, Iterable, List, Literal, TypedDict,
+                    Union)
 
 # Basic types
 
