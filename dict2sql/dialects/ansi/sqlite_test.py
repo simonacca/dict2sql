@@ -111,9 +111,7 @@ class TestInsert(_BaseTestQueryResult):
         db = open_sqlite_in_memory()
 
         Name = "Weird Al Yancovic"
-        insertQuery: InsertStatement = {
-            "Insert": {"Table": "Artist", "Data": {"Name": Name}}
-        }
+        insertQuery: InsertStatement = {"Insert": {"Table": "Artist", "Data": {"Name": Name}}}
 
         selectQuery: SelectStatement = {
             "Select": "Name",
@@ -146,9 +144,7 @@ class TestUpdate(_BaseTestQueryResult):
             "Dx": {"Type": "Quoted", "Expression": Name},
         }
 
-        insertQuery: InsertStatement = {
-            "Insert": {"Table": "Artist", "Data": {"Name": Name}}
-        }
+        insertQuery: InsertStatement = {"Insert": {"Table": "Artist", "Data": {"Name": Name}}}
 
         selectQuery: SelectStatement = {
             "Select": "Name",

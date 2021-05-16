@@ -21,9 +21,7 @@ class _ExpressionLiteralQuoted(comp.BaseAlternativeChild):
         return u.format_quotes(u.sanitizer(clause["Expression"]))
 
 
-class ExpressionLiteral(
-    comp.BaseAlternativeParent, comp.BaseAlternativeChildAlwaysMatch
-):
+class ExpressionLiteral(comp.BaseAlternativeParent, comp.BaseAlternativeChildAlwaysMatch):
     alternatives = [_ExpressionLiteralQuoted, _ExpressionLiteralSimple]
 
     @classmethod

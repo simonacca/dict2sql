@@ -16,11 +16,12 @@ clean:
 	rm -rf dist
 
 lint:
+	poetry run isort --check
 	poetry run black --check dict2sql
 
 
 format:
-	poetry run isort dict2sql
+	poetry run isort
 	poetry run black dict2sql
 
 typecheck:

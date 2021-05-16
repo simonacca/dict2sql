@@ -32,9 +32,7 @@ class _FromClauseSubQuery(comp.BaseAlternativeChild):
     @classmethod
     def to_sql(cls, u: Utils, clause: t.SubQuery) -> t.Intermediate:
         return [
-            u.format_subquery(
-                statement_select.SelectStatement.to_sql(u, clause["Query"])
-            ),
+            u.format_subquery(statement_select.SelectStatement.to_sql(u, clause["Query"])),
             "AS",
             u.sanitizer(clause["Alias"]),
         ]

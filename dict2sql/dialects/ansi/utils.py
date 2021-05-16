@@ -52,9 +52,7 @@ class Utils(main_utils.Utils):
 
         return inner(raw)
 
-    def _format_query_realize_intermediate_repr(
-        self, raw: Intermediate
-    ) -> Intermediate:
+    def _format_query_realize_intermediate_repr(self, raw: Intermediate) -> Intermediate:
         def inner(raw: Intermediate) -> Intermediate:
             if isinstance(raw, str):
                 return raw

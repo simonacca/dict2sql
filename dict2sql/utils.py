@@ -51,9 +51,7 @@ class Utils(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def _format_query_realize_intermediate_repr(
-        self, raw: Intermediate
-    ) -> Intermediate:
+    def _format_query_realize_intermediate_repr(self, raw: Intermediate) -> Intermediate:
         pass
 
     @abc.abstractmethod
@@ -71,9 +69,7 @@ _InterposeElem = TypeVar("_InterposeElem")
 _InterposeSeq = TypeVar("_InterposeSeq")
 
 
-def interpose(
-    el: _InterposeElem, seq: Iterable[_InterposeSeq]
-) -> Iterable[Union[_InterposeElem, _InterposeSeq]]:
+def interpose(el: _InterposeElem, seq: Iterable[_InterposeSeq]) -> Iterable[Union[_InterposeElem, _InterposeSeq]]:
     """
     Introduce el between each pair of items on seq.
     This function improves the type signature of toolz.interpose
