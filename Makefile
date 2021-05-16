@@ -17,7 +17,6 @@ clean:
 
 lint:
 	poetry run black --check dict2sql
-	poetry run isort --check dict2sql
 
 
 format:
