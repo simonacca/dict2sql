@@ -2,7 +2,7 @@ import dict2sql.compiler_misc as comp
 import dict2sql.types as t
 
 from . import statement_insert, statement_select, statement_update
-from .utils import Utils
+from dict2sql.utils import Utils
 
 
 class Statement(comp.BaseAlternativeParent):

@@ -1,6 +1,6 @@
 import dict2sql.compiler_misc as comp
 import dict2sql.types as t
-from .utils import Utils
+from dict2sql.utils import Utils
 
 
 class _InsertClauseMap:
