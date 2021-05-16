@@ -16,6 +16,7 @@ toolz = "^0.11.1"
 [tool.poetry.dev-dependencies]
 black = "^21.5b0"
 coverage = "^5.5"
+isort = "^5.8.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

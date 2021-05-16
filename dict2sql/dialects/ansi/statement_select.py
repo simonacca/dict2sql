@@ -2,10 +2,7 @@ import dict2sql.compiler_misc as comp
 import dict2sql.types as t
 from dict2sql.utils import Utils
 
-from . import clause_select
-from . import clause_from
-from . import clause_limit
-from . import clause_where
+from . import clause_from, clause_limit, clause_select, clause_where
 
 
 class SelectStatement(comp.BaseAlternativeChild):

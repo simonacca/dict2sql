@@ -17,8 +17,13 @@ clean:
 
 lint:
 	poetry run black --check dict2sql
+	poetry run isort --check dict2sql
 
-format:
+
+sort-imports:
+	poetry run isort dict2sql
+
+format: sort-imports
 	poetry run black dict2sql
 
 typecheck:

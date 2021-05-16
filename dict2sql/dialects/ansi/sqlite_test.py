@@ -1,16 +1,11 @@
-from sqlite3.dbapi2 import Connection
 import unittest
+from sqlite3.dbapi2 import Connection
 from typing import Any, Optional
 
 import dict2sql
 from dict2sql.test_fixtures.utils import open_sqlite_in_memory
-from dict2sql.types import (
-    InsertStatement,
-    SelectStatement,
-    Statement,
-    UpdateStatement,
-    WhereClause,
-)
+from dict2sql.types import (InsertStatement, SelectStatement, Statement,
+                            UpdateStatement, WhereClause)
 
 
 class _BaseTestQueryResult(unittest.TestCase):

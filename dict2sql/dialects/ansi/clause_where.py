@@ -1,8 +1,8 @@
 from typing import Any
+
 import dict2sql.compiler_misc as comp
 import dict2sql.types as t
-from dict2sql.utils import Utils
-from dict2sql.utils import interpose
+from dict2sql.utils import Utils, interpose
 
 
 class _ExpressionLiteralSimple(comp.BaseAlternativeChild):

@@ -1,9 +1,8 @@
 import itertools
 import pprint
 from typing import Iterable
+
 import dict2sql.utils as main_utils
-
-
 from dict2sql.types import ColName, Intermediate, SqlText, TableName
 
 
