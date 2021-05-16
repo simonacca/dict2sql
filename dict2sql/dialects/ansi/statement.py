@@ -1,9 +1,8 @@
-import dict2sql.compiler_utils as comp
+import dict2sql.compiler_misc as comp
 import dict2sql.types as t
-from dict2sql.utils import Utils
-from . import statement_select
-from . import statement_insert
-from . import statement_update
+
+from . import statement_insert, statement_select, statement_update
+from .utils import Utils
 
 
 class Statement(comp.BaseAlternativeParent):

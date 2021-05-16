@@ -17,7 +17,7 @@ import abc
 from typing import Any, List, Optional, Type
 
 import dict2sql.types as t
-from dict2sql.utils import Utils
+from .utils import Utils
 
 
 class Rule(abc.ABC):
