@@ -12,12 +12,12 @@ from typing import Any, Callable, Dict, Iterable, List, Literal, TypedDict, Unio
 # Eventually we should move to this. At present however, isinstance() cannot handle these types
 # see: https://github.com/python/mypy/issues/3325
 # SqlText = NewType("SqlText", str)
-# TableName = NewType("TableName", str)
-# ColName = NewType("ColName", str)
+# Identifier = NewType("Identifier", str)
 
 SqlText = str
 Identifier = str
 
+# Compiler Intermediate representation
 Intermediate = Union[SqlText, Identifier, Iterable["Intermediate"]]
 
 
