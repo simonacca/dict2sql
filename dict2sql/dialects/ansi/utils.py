@@ -18,15 +18,14 @@ class Utils(main_utils.Utils):
         self.flag_debug_produce_ir = flag_debug_produce_ir
 
     def sanitizer(self, raw: SqlText) -> SqlText:
-        return raw
+        safe = raw.replace('"', "").replace("'", "''")
+        return safe
 
     def format_identifier(self, raw: Union[Identifier, Identifier, Identifier]) -> Identifier:
-        safe = self.sanitizer(raw).replace('"', "")
-        return f'"{safe}"'
+        return f'"{self.sanitizer(raw)}"'
 
     def format_str_literal(self, raw: SqlText) -> SqlText:
-        safe = self.sanitizer(raw).replace("'", "''")
-        return f"'{safe}'"
+        return f"'{self.sanitizer(raw)}'"
 
     def format_subquery(self, raw: Iterable[Intermediate]) -> Intermediate:
         return itertools.chain(["("], raw, [")"])
