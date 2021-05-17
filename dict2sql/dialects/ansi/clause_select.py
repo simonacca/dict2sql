@@ -16,7 +16,7 @@ class _SelectClauseSingle(comp.BaseAlternativeChild):
     match = t.isColName
 
     @classmethod
-    def to_sql(cls, u: Utils, clause: t.ColName) -> t.Intermediate:
+    def to_sql(cls, u: Utils, clause: t.Identifier) -> t.Intermediate:
         return _SelectClauseList.to_sql(u, [clause])
 
 

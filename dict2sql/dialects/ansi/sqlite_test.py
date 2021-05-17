@@ -3,21 +3,14 @@ from sqlite3.dbapi2 import Connection
 from typing import Any, Optional
 
 import dict2sql
+import dict2sql.types as t
 from dict2sql.test_fixtures.utils import open_sqlite_in_memory
-from dict2sql.types import (
-    DeleteStatement,
-    InsertStatement,
-    SelectStatement,
-    Statement,
-    UpdateStatement,
-    WhereClause,
-)
 
 
 class _BaseTestQueryResult(unittest.TestCase):
     def _run_query(
         self,
-        query: Statement,
+        query: t.Statement,
         provided_db: Optional[Connection] = None,
     ):
         db = provided_db or open_sqlite_in_memory()
@@ -28,7 +21,7 @@ class _BaseTestQueryResult(unittest.TestCase):
 
     def _run_query_and_check_result(
         self,
-        query: Statement,
+        query: t.Statement,
         expectedResult: Any,
         provided_db: Optional[Connection] = None,
     ):
@@ -38,7 +31,7 @@ class _BaseTestQueryResult(unittest.TestCase):
 
 class TestSelect(_BaseTestQueryResult):
     def test_join(self):
-        query: SelectStatement = {
+        query: t.SelectStatement = {
             "Select": ["Title", "Artist.Name"],
             "From": {
                 "Join": "INNER JOIN",
@@ -60,7 +53,7 @@ class TestSelect(_BaseTestQueryResult):
         self._run_query_and_check_result(query, expectedRes)
 
     def test_where_boolean(self):
-        query: SelectStatement = {
+        query: t.SelectStatement = {
             "Select": ["FirstName"],
             "From": "Customer",
             "Where": {
@@ -84,7 +77,7 @@ class TestSelect(_BaseTestQueryResult):
         self._run_query_and_check_result(query, expectedRes)
 
     def test_select_star(self):
-        query: SelectStatement = {"Select": "*", "From": "Customer", "Limit": 1}
+        query: t.SelectStatement = {"Select": "*", "From": "Customer", "Limit": 1}
 
         expectedRes = [
             (
@@ -112,9 +105,9 @@ class TestInsert(_BaseTestQueryResult):
         db = open_sqlite_in_memory()
 
         Name = "Weird Al Yancovic"
-        insertQuery: InsertStatement = {"Insert": {"Table": "Artist", "Data": {"Name": Name}}}
+        insertQuery: t.InsertStatement = {"Insert": {"Table": "Artist", "Data": {"Name": Name}}}
 
-        selectQuery: SelectStatement = {
+        selectQuery: t.SelectStatement = {
             "Select": "Name",
             "From": "Artist",
             "Where": {
@@ -139,15 +132,15 @@ class TestUpdate(_BaseTestQueryResult):
         Name = "Weird Al Yancovic"
         Name2 = "Weird Al Yancovic ABC"
 
-        whereSubQuery: WhereClause = {
+        whereSubQuery: t.WhereClause = {
             "Op": "=",
             "Sx": "Name",
             "Dx": {"Type": "Quoted", "Expression": Name},
         }
 
-        insertQuery: InsertStatement = {"Insert": {"Table": "Artist", "Data": {"Name": Name}}}
+        insertQuery: t.InsertStatement = {"Insert": {"Table": "Artist", "Data": {"Name": Name}}}
 
-        selectQuery: SelectStatement = {
+        selectQuery: t.SelectStatement = {
             "Select": "Name",
             "From": "Artist",
             "Where": whereSubQuery,
@@ -160,13 +153,13 @@ class TestUpdate(_BaseTestQueryResult):
         expectedRes = [(Name,)]
         self._run_query_and_check_result(selectQuery, expectedRes, db)
 
-        updateQuery: UpdateStatement = {
+        updateQuery: t.UpdateStatement = {
             "Update": {"Table": "Artist", "Data": {"Name": Name2}},
             "Where": whereSubQuery,
         }
         self._run_query(updateQuery, db)
 
-        selectQuery2: SelectStatement = {
+        selectQuery2: t.SelectStatement = {
             "Select": "Name",
             "From": "Artist",
             "Where": {
@@ -186,21 +179,21 @@ class TestDelete(_BaseTestQueryResult):
 
         Name = "Weird Al Yancovic"
 
-        whereSubQuery: WhereClause = {
+        whereSubQuery: t.WhereClause = {
             "Op": "=",
             "Sx": "Name",
             "Dx": {"Type": "Quoted", "Expression": Name},
         }
 
-        insertQuery: InsertStatement = {"Insert": {"Table": "Artist", "Data": {"Name": Name}}}
+        insertQuery: t.InsertStatement = {"Insert": {"Table": "Artist", "Data": {"Name": Name}}}
 
-        selectQuery: SelectStatement = {
+        selectQuery: t.SelectStatement = {
             "Select": "Name",
             "From": "Artist",
             "Where": whereSubQuery,
         }
 
-        deleteQuery: DeleteStatement = {"Delete": {"Table": "Artist"}, "Where": whereSubQuery}
+        deleteQuery: t.DeleteStatement = {"Delete": {"Table": "Artist"}, "Where": whereSubQuery}
 
         self._run_query_and_check_result(selectQuery, [], db)
 

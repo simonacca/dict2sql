@@ -3,7 +3,7 @@ import pprint
 from typing import Iterable, Union
 
 import dict2sql.utils as main_utils
-from dict2sql.types import ColName, Identifier, Intermediate, SqlText, TableName
+from dict2sql.types import Identifier, Intermediate, SqlText
 
 
 class Utils(main_utils.Utils):
@@ -20,10 +20,9 @@ class Utils(main_utils.Utils):
     def sanitizer(self, raw: SqlText) -> SqlText:
         return raw
 
-    def format_identifier(self, raw: Union[TableName,ColName, Identifier]) -> Identifier:
-        safe = self.sanitizer(raw).replace('"', '')
+    def format_identifier(self, raw: Union[Identifier, Identifier, Identifier]) -> Identifier:
+        safe = self.sanitizer(raw).replace('"', "")
         return f'"{safe}"'
-
 
     def format_str_literal(self, raw: SqlText) -> SqlText:
         safe = self.sanitizer(raw).replace("'", "''")

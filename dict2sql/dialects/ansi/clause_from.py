@@ -11,7 +11,7 @@ class _FromClauseSingle(comp.BaseAlternativeChild):
     match = t.isTableName
 
     @classmethod
-    def to_sql(cls, u: Utils, clause: t.TableName) -> t.Intermediate:
+    def to_sql(cls, u: Utils, clause: t.Identifier) -> t.Intermediate:
         return u.format_identifier(clause)
 
 

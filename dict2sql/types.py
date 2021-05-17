@@ -16,33 +16,31 @@ from typing import Any, Callable, Dict, Iterable, List, Literal, TypedDict, Unio
 # ColName = NewType("ColName", str)
 
 SqlText = str
-TableName = str
-ColName = str
 Identifier = str
 
-Intermediate = Union[SqlText, ColName, TableName, Iterable["Intermediate"]]
+Intermediate = Union[SqlText, Identifier, Iterable["Intermediate"]]
 
 
 def isTableName(obj: Any):
-    return isinstance(obj, TableName)
+    return isinstance(obj, Identifier)
 
 
 def isColName(obj: Any):
-    return isinstance(obj, ColName)
+    return isinstance(obj, Identifier)
 
 
 # Sanitizer
 SanitizerT = Callable[[SqlText], SqlText]
 
 
-ColNameList = List[ColName]
+ColNameList = List[Identifier]
 
 
 def isColNameList(obj: Any):
     return isinstance(obj, list)
 
 
-TableNameList = List[TableName]
+TableNameList = List[Identifier]
 
 
 def isTableNameList(obj: Any):
@@ -51,7 +49,7 @@ def isTableNameList(obj: Any):
 
 # Select Clause
 
-SelectClause = Union[ColName, ColNameList]
+SelectClause = Union[Identifier, ColNameList]
 
 # From Clause
 
@@ -76,7 +74,7 @@ def isJoin(obj: Any):
     return isinstance(obj, dict) and "Join" in obj
 
 
-FromClauseSub = Union["SubQuery", TableName, JoinClause]
+FromClauseSub = Union["SubQuery", Identifier, JoinClause]
 FromClause = Union[FromClauseSub, List[FromClauseSub]]
 
 # Where Clause
@@ -160,7 +158,7 @@ def isSelectStatement(obj: Any):
 
 
 class SubQuery(TypedDict):
-    Alias: TableName
+    Alias: Identifier
     Query: SelectStatement
 
 
@@ -170,11 +168,11 @@ def isSubQuery(obj: Any):
 
 # Insert statement
 
-ValueMap = Dict[ColName, Any]
+ValueMap = Dict[Identifier, Any]
 
 # TODO: find better name
 class ValueClause(TypedDict):
-    Table: TableName
+    Table: Identifier
     Data: ValueMap
 
 
@@ -202,7 +200,7 @@ def isUpdateStatement(obj: Any):
 
 
 class DeleteClause(TypedDict):
-    Table: TableName
+    Table: Identifier
 
 
 class DeleteStatement(TypedDict, total=False):
