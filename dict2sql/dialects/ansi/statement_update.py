@@ -14,9 +14,9 @@ class _UpdateClauseMap:
 
         return [
             [
-                u.format_colname(i[0]),
+                u.format_identifier(i[0]),
                 "=",
-                u.format_quotes(i[1]),
+                u.format_str_literal(i[1]),
             ]
             for i in items
         ]

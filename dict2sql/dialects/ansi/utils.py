@@ -1,9 +1,9 @@
 import itertools
 import pprint
-from typing import Iterable
+from typing import Iterable, Union
 
 import dict2sql.utils as main_utils
-from dict2sql.types import ColName, Intermediate, SqlText, TableName
+from dict2sql.types import ColName, Identifier, Intermediate, SqlText, TableName
 
 
 class Utils(main_utils.Utils):
@@ -18,16 +18,16 @@ class Utils(main_utils.Utils):
         self.flag_debug_produce_ir = flag_debug_produce_ir
 
     def sanitizer(self, raw: SqlText) -> SqlText:
-        return f"{raw}"
+        return raw
 
-    def format_colname(self, raw: ColName) -> ColName:
-        return f"`{raw}`"
+    def format_identifier(self, raw: Union[TableName,ColName, Identifier]) -> Identifier:
+        safe = self.sanitizer(raw).replace('"', '')
+        return f'"{safe}"'
 
-    def format_tablename(self, raw: TableName) -> ColName:
-        return f"`{raw}`"
 
-    def format_quotes(self, raw: SqlText) -> SqlText:
-        return f'"{raw}"'
+    def format_str_literal(self, raw: SqlText) -> SqlText:
+        safe = self.sanitizer(raw).replace("'", "''")
+        return f"'{safe}'"
 
     def format_subquery(self, raw: Iterable[Intermediate]) -> Intermediate:
         return itertools.chain(["("], raw, [")"])

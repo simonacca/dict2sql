@@ -18,6 +18,7 @@ from typing import Any, Callable, Dict, Iterable, List, Literal, TypedDict, Unio
 SqlText = str
 TableName = str
 ColName = str
+Identifier = str
 
 Intermediate = Union[SqlText, ColName, TableName, Iterable["Intermediate"]]
 

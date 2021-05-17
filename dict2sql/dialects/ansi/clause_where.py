@@ -18,7 +18,7 @@ class _ExpressionLiteralQuoted(comp.BaseAlternativeChild):
 
     @classmethod
     def to_sql(cls, u: Utils, clause: t.ExpressionLiteralQuoted) -> t.Intermediate:
-        return u.format_quotes(u.sanitizer(clause["Expression"]))
+        return u.format_str_literal(clause["Expression"])
 
 
 class ExpressionLiteral(comp.BaseAlternativeParent, comp.BaseAlternativeChildAlwaysMatch):

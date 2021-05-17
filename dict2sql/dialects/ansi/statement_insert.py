@@ -11,9 +11,9 @@ class _InsertClauseMap:
         items = list(clause.items())
 
         return [
-            u.format_subquery([u.format_colname(i[0]) for i in items]),
+            u.format_subquery([u.format_identifier(i[0]) for i in items]),
             "VALUES",
-            u.format_subquery([u.format_quotes(i[1]) for i in items]),
+            u.format_subquery([u.format_identifier(i[1]) for i in items]),
         ]
 
 

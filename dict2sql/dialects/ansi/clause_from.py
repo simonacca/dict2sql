@@ -12,7 +12,7 @@ class _FromClauseSingle(comp.BaseAlternativeChild):
 
     @classmethod
     def to_sql(cls, u: Utils, clause: t.TableName) -> t.Intermediate:
-        return u.format_tablename(u.sanitizer(clause))
+        return u.format_identifier(clause)
 
 
 class _FromClauseList(comp.BaseAlternativeChild):

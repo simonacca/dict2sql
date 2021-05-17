@@ -4,7 +4,7 @@ from typing import Iterable, TypeVar, Union
 # pyright: reportMissingTypeStubs=false
 import toolz
 
-from dict2sql.types import ColName, Intermediate, SqlText, TableName
+from dict2sql.types import ColName, Identifier, Intermediate, SqlText, TableName
 
 
 class Utils(abc.ABC):
@@ -26,15 +26,13 @@ class Utils(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def format_colname(self, raw: ColName) -> ColName:
+    # TODO: keep tablename,colname in the signature?
+    def format_identifier(self, raw: Union[TableName,ColName, Identifier]) -> Identifier:
         pass
 
-    @abc.abstractmethod
-    def format_tablename(self, raw: TableName) -> ColName:
-        pass
 
     @abc.abstractmethod
-    def format_quotes(self, raw: SqlText) -> SqlText:
+    def format_str_literal(self, raw: SqlText) -> SqlText:
         pass
 
     @abc.abstractmethod
