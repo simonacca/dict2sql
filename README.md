@@ -77,6 +77,11 @@ This project at the moment targets ANSI SQL, with the ambition of soon targeting
 
 Tests are based on the [Chinhook Database](https://github.com/lerocha/chinook-database).
 
+## Best with
+
+A user of this library would naturally want to obtain the results of queries as data structures as well (a sql2dict of sorts).
+This functionality already provided by the excellent [records](https://pypi.org/project/records/) library.
+
 ## Contributing
 
 Contributions and forks are welcome!
@@ -89,7 +94,16 @@ In any case, thank you for your contribution!
 
 
 ### TODOs
-- actually implement sanitization/escaping (atm there's none)
+- implement sanitization/escaping correctly
+- sql functionality
+    - having
+    - functions
+    - aggregate
+    - statements
+        - create
+- more examples
+    - query end to end with sqlalchemy
+    - generative examples
 - handle different dialects
     - sqlite
     - mysql
@@ -98,22 +112,8 @@ In any case, thank you for your contribution!
     - unit tests
         - compiler to ir
         - ir to sql
-        - types (expressivity)
         - utils
-    - integration tests
-        - sqlite
     - security
         - test for sql injection
             - fuzzing
             - generative testing
-- sql functionality
-    - having
-    - functions
-    - aggregate
-    - statements
-        - create
-- more examples
-    - query end to end with db engine
-    - generative examples
-- also provide types for data?
-    - probably not a worthwile direction
