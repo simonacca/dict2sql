@@ -111,12 +111,9 @@ In any case, thank you for your contribution!
     - functions
     - aggregate
     - statements
-        - insert
-        - delete
-        - update
         - create
 - more examples
-    - query end to end with sqlalchemy
+    - query end to end with db engine
     - generative examples
 - also provide types for data?
     - probably not a worthwile direction
