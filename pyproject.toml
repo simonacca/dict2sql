@@ -9,9 +9,10 @@ readme = "README.md"
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.6"
 SQLAlchemy = "^1.4.13"
 toolz = "^0.11.1"
+typing-extensions = "^3.10.0"
 
 [tool.poetry.dev-dependencies]
 black = "^21.5b0"
