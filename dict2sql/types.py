@@ -6,6 +6,7 @@ Types that need it, have a corresponding isType function, which is used
 to disambiguate types at runtime.
 """
 from typing import Any, Callable, Dict, Iterable, List, Union
+
 from typing_extensions import Literal, TypedDict
 
 # Basic types

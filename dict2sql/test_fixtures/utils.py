@@ -1,6 +1,6 @@
-import sqlite3
 import os
 import platform
+import sqlite3
 
 python_version = platform.python_version_tuple()
 
